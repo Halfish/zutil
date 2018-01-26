@@ -14,18 +14,18 @@ class Config(object):
                 try:
                     source = json.loads(line)
                 except:
-                    print line
+                    print(line)
                     raise ValueError('Invalid json, please check your json file')
         source = source is None and {} or source
         assert isinstance(source, dict), 'must be dict or valid json'
         self.store = source
         self.overwrite = overwrite
-        for key, value in args.iteritems():
+        for key, value in args.items():
             self.store[key] = value
 
     def __getitem__(self, key):
         assert isinstance(key, str), 'key of parameter must be str type!'
-        if not self.store.has_key(key):
+        if not key in self.store:
             raise KeyError('no such parameter as ' + key + ' in Config')
         return self.store[key]
 
@@ -34,7 +34,7 @@ class Config(object):
 
     def __setitem__(self, key, value, overwrite=None):
         overwrite = overwrite or self.overwrite
-        if self.store.has_key(key) and overwrite == False:
+        if key in self.store and overwrite == False:
             raise ValueError('key already exist, maybe you should set overwrite to True')
         self.store[key] = value
 
@@ -49,7 +49,7 @@ class Config(object):
 
     def select(self, keys, strict=True):
         if isinstance(keys, str):
-            keys = map(str.strip, keys.split(','))
+            keys = [key.strip() for key in keys.split(',')]
         if not strict:
             keys = filter(self.store.has_key, keys)
         assert isinstance(keys, list), 'only accept str or list!'
@@ -57,7 +57,7 @@ class Config(object):
         return Config(source)
 
     def update(self, **args):
-        for key, value in args.iteritems():
+        for key, value in args.items():
             self.__setitem__(key, value, overwrite=True)
         return self
 
@@ -66,7 +66,7 @@ class Config(object):
         you should use copy rather than __setitem__ to change config
         '''
         store = self.store.copy()
-        for key, value in args.iteritems():
+        for key, value in args.items():
             store[key] = value      # overwrite by force
         return Config(store)
 
@@ -94,31 +94,31 @@ def test():
 
     # init from dict
     config = Config(source=opt, overwrite=True, woqu='woququ')
-    print config['woqu']
+    print(config['woqu'])
 
-    print config['savefreq']    # test __getitem__
+    print(config['savefreq'])    # test __getitem__
     config['savefreq'] = 1000   # test __setitem__
-    print config.savefreq       # test __getattr__
-    print config                # test __repr__
+    print(config.savefreq)       # test __getattr__
+    print(config)                # test __repr__
 
     config1 = Config(source='parameters.json')
-    print config1
+    print(config1)
 
     # test select function
     config2 = config.select('savefreq, learning_rate, max_epppoch', strict=False)
-    print type(config2), config2
+    print(type(config2), config2)
 
     # test update function
     config3 = config.update(savefreq=5000)
-    print type(config3), config3 == config
+    print(type(config3), config3 == config)
 
     # test copy function
     config4 = config.copy(savefreq=6000)
-    print type(config4), config4 == config
+    print(type(config4), config4 == config)
 
     # test __add__ operator
     config5 = Config({'name':'Bruce'}) + {'whahahah':'youhouhouhou'}
-    print type(config5), config5
+    print(type(config5), config5)
 
 
 if __name__ == '__main__':

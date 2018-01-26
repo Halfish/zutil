@@ -30,4 +30,4 @@ class ConvBlockModule(nn.Sequential):
 
 if __name__ == '__main__':
     block = ConvBlockModule()
-    print block
+    print(block)
